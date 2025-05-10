@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clinic Queue System</title>
+    <script>
+        async function checkIn() {
+            let name = document.getElementById("name").value;
+            let response = await fetch('/checkin', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            let data = await response.json();
+            alert(data.message);
+            loadQueue();
+        }
+
+        async function loadQueue() {
+            let response = await fetch('/queue');
+            let queue = await response.json();
+            let queueList = document.getElementById("queueList");
+            queueList.innerHTML = queue.map(patient => `<li>${patient.name} - Checked in at ${patient.checkin_time}</li>`).join("");
+        }
+
+        async function callNext() {
+            let response = await fetch('/next', {method: 'POST'});
+            let data = await response.json();
+            alert(data.message);
+            loadQueue();
+        }
+    </script>
+</head>
+<body onload="loadQueue()">
+    <h1>Clinic Queue System</h1>
+    <input type="text" id="name" placeholder="Enter Name">
+    <button onclick="checkIn()">Check-In</button>
+    <button onclick="callNext()">Call Next Patient</button>
+    <h2>Current Queue:</h2>
+    <ul id="queueList"></ul>
+</body>
+</html>
